@@ -1,0 +1,25 @@
+spawn_range_min: 1.0
+spawn_range_max: 2.5
+fridge_reach_distance: 1.5
+knob_reach_distance: 0.20
+
+knob_reach_distance_min: 0.1
+knob_reach_distance_max: 0.3
+knob_dist_curriculum_step: [
+  500, 1000, 1500, 2000, 
+]
+knob_dist_enable_curriculum: False
+
+init_openness: 0.0
+
+too_close_dist: 0.5
+
+spawn_range_curriculum_step: 0.000
+
+openfridge_use_section_scale: False
+
+sample_opening_type: ["Push", "Pull"]
+
+push_need_grasp: False
+pull_need_grasp: True
+push_need_close_knob: False

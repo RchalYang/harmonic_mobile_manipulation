@@ -1,0 +1,8 @@
+spawn_range_min: 1.0
+spawn_range_max: 4.0
+
+init_dirt_points: 20
+
+success_progress: 0.9
+
+table_reach_distance: 2.0

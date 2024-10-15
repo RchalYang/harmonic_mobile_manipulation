@@ -1,0 +1,8 @@
+# For evaluation and fine-tuning on RoboTHOR and Habitat
+agent_mode: "stretch"
+field_of_view: 59
+
+commit_id: "c7c6b6fbd122ec7225a1c1fe64b818f75876ec61" 
+# Agent camera's height from crouching and standing
+valid_agent_heights:
+  - 0.8697997

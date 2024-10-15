@@ -1,0 +1,394 @@
+defaults:
+  - agent: ???
+  - target_object_types: ???
+  - task_config: ???
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
+  - _self_
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+procthor:
+  train_house_id: null
+  train_house_ids: null
+  num_train_houses: null
+  num_val_houses: null
+  num_test_houses: null
+
+  # Probability of randomizing the object materials for a given episode
+  # during training.
+  p_randomize_materials: 0.8
+
+ithor:
+  # Probability of shuffling the objects with InitialRandomSpawn for a given
+  # episode during iTHOR training.
+  p_shuffle_objects: 0
+
+model:
+  model_type_name: VitMultiModalTransformerHistNCameraActorCritic
+
+  vit_compressor_hidden_out_dims: [64, 16]
+  combiner_hidden_out_dims: [32, 32]
+  proprio_hidden_out_dims: [64, 64]
+  transformer_params: [[8, 256], [8, 256]]
+
+  add_pos_emb: True
+  add_modal_emb: True
+  add_his_emb: True
+
+  add_prev_actions_embedding: False
+  add_tanh: false
+  image_size: 224
+
+  init_std: 1.8
+
+  dino:
+    model_type: "dinov2_vits14"
+
+  clip:
+    # Must be in "RN50" or "RN50x16"
+    model_type: "RN50"
+
+  add_vision_compressor: null
+  his_len: 5
+
+  no_prev_act: False
+
+  codebook:
+    type: "learned" # random/learned/binary/
+    indexing: "softmax" # softmax/gumbel_softmax/topk_softmax/sparsemax
+    size: 256
+    code_dim: 10
+    dropout: 0.1
+    initialization: "random" # dictionary_learning/random
+    embeds: "joint_embeds" # obs_embeds, joint_embeds, beliefs, none
+    temperature: 1.
+    topk: 16 # topk softmax gating
+    with_offset: True
+
+
+training:
+  ppo_steps: 10_000_000_000
+  lr: 0.0003
+  num_mini_batch: 1
+  update_repeats: 4
+  num_steps: 128
+  save_interval: 1_000_000
+  log_interval: 10_000
+  advance_scene_rollout_period: 20
+
+  small_batch: False
+
+  long_horizon: False
+
+  entropy_coef: 0.01
+
+  gamma: 0.99
+  use_gae: true
+  gae_lambda: 0.95
+  max_grad_norm: 1.0
+
+  object_selection:
+    # The number of visibility points to sample when checking if an object is visible.
+    # Note: total number of visibility raycasts is then MAX_VIS_POINTS * MAX_AGENT_POSITIONS.
+    max_vis_points: 6
+
+    # The number of agent positions to sample when checking if an object is visible.
+    # Note: total number of visibility raycasts is then MAX_VIS_POINTS * MAX_AGENT_POSITIONS.
+    max_agent_positions: 6
+
+    # Epsilon Greedy probability of selecting the greedy (least common) target object.
+    p_greedy_target_object: 0.8
+
+evaluation:
+  test_on_validation: true
+  test_on_training: false
+  max_val_tasks: null
+  max_test_tasks: null
+  no_eval_aug: True
+
+task:
+  name: OpeningDoorGraspTask
+
+sensor:
+  enable_history: True
+  # navigation_type_name: RGBSensorStretchControllerNavigationHist
+  # manipulation_type_name: RGBSensorStretchControllerManipulationHist
+  # dino_preprocessor_type_name: DinoViTAugHistoryPreprocessor
+
+mdp:
+  max_steps: 500
+  actions:
+    - MoveAhead
+    - RotateLeft
+    - RotateRight
+    - End
+    - LookUp
+    - LookDown
+  reverse_at_boundary: true
+  smaller_action: false
+  reward:
+    opening_door:
+      train:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 0.0
+        grasp_success_reward: 4.0
+        table_success_reward: 1.0
+        open_section_reward: 80.0
+        open_initial_reward: 2.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 20.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1000
+        manipulation_shaping_weight: 0.02
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.002
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 10.0
+      eval:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 0.0
+        grasp_success_reward: 4.0
+        table_success_reward: 1.0
+        open_section_reward: 80.0
+        open_initial_reward: 2.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 20.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1000
+        manipulation_shaping_weight: 0.02
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.002
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 2.0
+    cleaning_table:
+      train:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 1.0
+        grasp_success_reward: 0.0
+        table_success_reward: 1.0
+        open_section_reward: 20.0
+        open_initial_reward: 0.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 10.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1
+        manipulation_shaping_weight: 1
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.01
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 5.0
+      eval:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 1.0
+        grasp_success_reward: 0.0
+        table_success_reward: 1.0
+        open_section_reward: 20.0
+        open_initial_reward: 0.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 10.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1
+        manipulation_shaping_weight: 1
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.01
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 5.0
+    opening_fridge:
+      train:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 0.0
+        grasp_success_reward: 4.0
+        table_success_reward: 1.0
+        open_section_reward: 80.0
+        open_initial_reward: 2.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 20.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1000
+        manipulation_shaping_weight: 0.02
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.002
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 10.0
+      eval:
+        step_penalty: -0.01
+        energy_penalty: -0.05
+        goal_success_reward: 2.0
+        knob_success_reward: 0.0
+        grasp_success_reward: 4.0
+        table_success_reward: 1.0
+        open_section_reward: 80.0
+        open_initial_reward: 2.0
+        end_effector_position_reward: 0.0
+        complete_task_reward: 20.0
+        failed_stop_reward: 0.0
+        shaping_weight: 2.0
+        manipulation_shaping_scale: -5
+        manipulation_shaping_moving_scale: 1000
+        manipulation_shaping_weight: 0.02
+        reached_horizon_reward: 0.0
+        positive_only_reward: false
+        failed_action_penalty: -0.002
+        new_room_reward: 0.0
+        new_object_reward: 0.0
+
+        too_close_penalty: -0.02
+
+        navigation_energy_penalty_scale: 4
+        cleaning_reward: 1.0
+        per_dirt_reward: 2.0
+machine:
+  num_train_processes: 64
+  num_val_processes: 8
+  num_test_processes: 60
+
+  # leave empty to use all
+  num_train_gpus: null
+  num_val_gpus: 1
+  num_test_gpus: null
+
+# todo: support multiple agents!
+agent:
+  camera_width: 400
+  camera_height: 300
+  rotate_step_degrees: 30
+  visibility_distance: 1
+  step_size: 0.25
+  action_scale: [0.25, 0.25, 0.25, 0.25, 0.25]
+  # action_scale: [1.0, 1.0, 1.0, 1.0, 1.0]
+
+wandb:
+  entity: ???
+  project: ???
+  name: null
+
+transformers:
+  # Turn on to speed initialization up, but requires
+  # having the datasets in ~/.cache/huggingface/
+  offline: "no"
+
+pretrained_model:
+  project: "procthor-models"
+  name: null
+  only_load_model_state_dict: true
+  checkpoint_as_pretrained: false
+
+# OnPolicyRunner args
+callbacks: "training/callbacks/wandb_logging.py"
+checkpoint: null
+disable_tensorboard: false
+eval: false
+experiment: ???
+experiment_base: .
+extra_tag: ""
+output_dir: output
+seed: 42
+config_kwargs: null
+valid_on_initial_weights: true
+
+visualize: null
+
+ai2thor:
+  # Must be in "CloudRendering" or "Linux64"
+  platform: CloudRendering
+
+distributed:
+  # The machine_id of this node
+  machine_id: 0
+
+  # IP and port of the head distrubted process
+  ip_and_port: 127.0.0.1:0
+
+  # Number of distributed nodes
+  nodes: 1
+
+phone2proc:
+  # use controller with failed motion reaction
+  stochastic_controller: true
+  
+  # use random FOV and horizon
+  stochastic_camera_params: true
+
+  # use variants with clutter stripped out
+  no_clutter: false
+
+  # only sample particular objects
+  chosen_objects: null
+
+  # testing a theory. 0.7 is standard
+  distributed_preemption_threshold: 0.7 
+
+  # config option for logging. Original p2p is 128
+  flat_update_batch_size: 8
+
+run_real: False
+
+real:
+  # the real platform. Will be x.corp.ai2 
+  host: ???
+
+  # look for a specific object. If null, cycle through all
+  specific_object: null
+
+  # starting horizon. Only options are 0 (straight ahead) and 
+  # 30 (down 1). Pretrained starts at 30, finetuned generally 0 (verify!)
+  initial_horizon: 30
