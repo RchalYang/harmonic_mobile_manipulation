@@ -71,13 +71,14 @@ To only run evaluation (validation / testing), pass in the `eval=true` flag and 
 ## Bibtex 
 
 ```
-@misc{yang2023harmonic,
-          title={Harmonic Mobile Manipulation}, 
-          author={Ruihan Yang and Yejin Kim and Aniruddha Kembhavi and Xiaolong Wang and Kiana Ehsani},
-          year={2023},
-          eprint={2312.06639},
-          archivePrefix={arXiv},
-          primaryClass={cs.RO}
+@misc{yang2024harmonicmobilemanipulation,
+      title={Harmonic Mobile Manipulation}, 
+      author={Ruihan Yang and Yejin Kim and Rose Hendrix and Aniruddha Kembhavi and Xiaolong Wang and Kiana Ehsani},
+      year={2024},
+      eprint={2312.06639},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2312.06639}, 
 }
 ```
 
