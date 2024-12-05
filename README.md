@@ -2,7 +2,7 @@
 
 This is repo for our work:
 
-Harmonic Mobile Manipulation, IROS 2024 (Oral)
+Harmonic Mobile Manipulation, IROS 2024 (Oral) **Best Paper on Mobile Manipulation** 
 
 Ruihan Yang<sup>1</sup>, Yejin Kim<sup>2</sup>, Rose Hendrix<sup>2</sup>, Aniruddha Kembhavi<sup>2,3</sup>, Xiaolong Wang<sup>1</sup>, Kiana Ehsani<sup>2</sup>
 
